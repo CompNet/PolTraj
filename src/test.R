@@ -12,7 +12,7 @@ library(cluster)
 CURRENT_YEAR <- 2018
 
 # init file paths
-data.folder <- "data"
+data.folder <- file.path("data","test")
 perso.file <- file.path(data.folder,"personal.csv")
 traj.file <- file.path(data.folder,"trajectories.txt")
 
