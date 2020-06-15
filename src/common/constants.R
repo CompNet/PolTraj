@@ -18,7 +18,10 @@ PLOT_FORMATS <- c("pdf","png")
 
 
 #############################################################################################
-data.folder <- file.path("data","bref") 
+# folders and files
+FOLDER_IN <- "in"
+	FILE_DATA <- file.path(FOLDER_IN, "data.txt")
+FOLDER_OUT <- "in"
 
 
 
@@ -222,3 +225,28 @@ COL_TYPES[COL_ATT_PRO_NOM] <- "nom"
 COL_TYPES[COL_ATT_REG_CODE] <- "cat"
 COL_TYPES[COL_ATT_REG_NOM] <- "nom"
 COL_TYPES[COL_ATT_SOURCES] <- "cat"
+
+
+
+
+#############################################################################################
+# mandate short names
+MDT_SHORT_CD <- "CD"
+MDT_SHORT_EPCI <- "EPCI"
+MDT_SHORT_CM <- "CM"
+MDT_SHORT_CR <- "CR"
+MDT_SHORT_CR <- "D"
+MDT_SHORT_PR <- "PR"
+MDT_SHORT_DE <- "DE"
+MDT_SHORT_S <- "S"
+
+# conversion map
+MDT_SHORT <- c()
+MDT_SHORT["CONSEILLER DEPARTEMENTAL"] <- MDT_SHORT_CD
+MDT_SHORT["CONSEILLER EPCI"] <- MDT_SHORT_EPCI
+MDT_SHORT["CONSEILLER MUNICIPAL"] <- MDT_SHORT_CM
+MDT_SHORT["CONSEILLER REGIONAL"] <- MDT_SHORT_CR
+MDT_SHORT["DEPUTE"] <- MDT_SHORT_CR
+MDT_SHORT["PRESIDENT DE LA REPUBLIQUE"] <- MDT_SHORT_PR
+MDT_SHORT["REPRESENTANT AU PARLEMENT EUROPEEN"] <- MDT_SHORT_DE
+MDT_SHORT["SENATEUR"] <- MDT_SHORT_S

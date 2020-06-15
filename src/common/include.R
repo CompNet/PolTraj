@@ -29,5 +29,6 @@ library("cluster")
 
 #############################################################################################
 # source code
-source("src/constants.R")
-source("src/files.R")
+source("src/common/constants.R")
+source("src/common/colors.R")
+source("src/common/load.R")
