@@ -27,7 +27,8 @@ PLOT_FORMATS <- c("pdf","png")
 # folders and files
 FOLDER_IN <- "in"
 	FILE_DATA <- file.path(FOLDER_IN, "data.txt")
-FOLDER_OUT <- "in"
+FOLDER_OUT <- "out"
+	FILE_CACHE <- file.path(FOLDER_OUT, "cache.txt")
 FOLDER_LOG <- "log"
 
 
