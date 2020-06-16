@@ -9,7 +9,9 @@
 source("src/common/include.R")
 
 
-
+# start logging
+start.rec.log(text=paste0("CACHE"))
+tlog(0,"Start converting and caching the BRÉF data")
 
 # read BRÉF table
 data <- read.bref.table(input.file=FILE_DATA)
@@ -17,3 +19,10 @@ data <- read.bref.table(input.file=FILE_DATA)
 sd <- convert.to.sequences(data)
 
 # perform sequence analysis
+
+
+
+
+
+tlog(0,"Done")
+end.rec.log()

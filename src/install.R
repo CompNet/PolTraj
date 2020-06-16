@@ -15,4 +15,5 @@ install.packages("TraMinR")
 install.packages("cluster")
 
 # parallel computation
+install.packages("parallel")
 install.packages("future.apply")

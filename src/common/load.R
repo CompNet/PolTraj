@@ -17,7 +17,7 @@
 # returns: the read data table.
 #############################################################################################
 read.cached.table <- function(cache.file)
-{	cat("Reading cached file \"",cache.file,"\"\n")
+{	tlog(2, "Reading cached file \"",cache.file,"\"")
 	
 	# first read only the column names
 	tmp <- read.table(
@@ -52,7 +52,7 @@ read.cached.table <- function(cache.file)
 		as.is=TRUE,					# don't convert strings to factors
 		colClasses=types			# force column types
 	)
-	cat("..Read ",nrow(data)," rows and ",ncol(data)," columns\n")
+	tlog(4,"Read ",nrow(data)," rows and ",ncol(data)," columns")
 	
 	return(data)
 }
@@ -72,7 +72,7 @@ read.bref.table <- function(input.file)
 	data <- read.cached.table(cache.file=FILE_DATA)
 	
 	# split the table into personal information vs. mandates
-	cat("Splitting the table into personal information vs. mandates\n")
+	tlog(2, "Splitting the table into personal information vs. mandates")
 	col.persinf <- c(COL_ATT_ELU_ID, COL_ATT_ELU_ID_RNE, COL_ATT_ELU_ID_ASSEMB, COL_ATT_ELU_ID_SENAT, COL_ATT_ELU_ID_EURO,
 		COL_ATT_ELU_NAIS_DATE, COL_ATT_ELU_NAIS_COM, COL_ATT_ELU_NAIS_DPT, COL_ATT_ELU_NAIS_PAYS, COL_ATT_ELU_DDD,
 		COL_ATT_ELU_NOM, COL_ATT_ELU_PRENOM, COL_ATT_ELU_SEXE, COL_ATT_ELU_NAT			
@@ -96,18 +96,91 @@ read.bref.table <- function(input.file)
 # returns: a Traminer object.
 #############################################################################################
 convert.to.sequences <- function(tab.persinf, tab.mandates)
-{	# at first, let's just use the mandate names
-	unique.ids <- tab.persinf[,COL_ATT_ELU_ID]
-	seqs <- sapply(unique.ids, function(id)
-	{	# retrieve the date for the current id
-		rows <- which(data[,COL_ATT_ELU_ID]==id)
-		print(data[rows,c(COL_ATT_MDT_NOM,COL_ATT_MDT_DBT,COL_ATT_MDT_FIN)])
-		# convert mandate names to short form
-		mdts <- MDT_SHORT[tab.mandates[rows,COL_ATT_MDT_NOM]]
-		# order by mandate dates
-		idx <- order(data[rows,COL_ATT_MDT_DBT], data[rows,COL_ATT_MDT_FIN])
-	})
+{	tlog(2, "Converting data to sequences")
 	
+	# temporal resolution
+	granularity <- "year"
+	start.date <- as.Date("2001/1/1")
+	end.date <- Sys.Date()
+	
+	# at first, let's just use the mandate names
+	mdt.order <- c(MDT_SHORT_PR,MDT_SHORT_S,MDT_SHORT_D,MDT_SHORT_DE,MDT_SHORT_CR,MDT_SHORT_CD,MDT_SHORT_CM,MDT_SHORT_EPCI)
+	unique.ids <- tab.persinf[,COL_ATT_ELU_ID]
+	tlog.start.loop(4, length(unique.ids), "Processing each id separately")
+	seqs <- sapply(1:length(unique.ids), function(j)
+	{	id <- unique.ids[j]
+		tlog.loop(6, j, "Processing id ",id, "(",j,"/",length(unique.ids),")")
+		
+		# retrieve the date for the current id
+		rows <- which(data[,COL_ATT_ELU_ID]==id)
+		tmp <- data[rows,c(COL_ATT_MDT_NOM,COL_ATT_MDT_DBT,COL_ATT_MDT_FIN)]
+		#print(tmp)
+		
+		# convert mandate names to short form
+		tmp[,COL_ATT_MDT_NOM] <- MDT_SHORT[tmp[,COL_ATT_MDT_NOM]]
+		
+		# complete missing end dates
+		no.end.date <- which(is.na(tmp[,COL_ATT_MDT_FIN]))
+		tmp[no.end.date,COL_ATT_MDT_FIN] <- rep(Sys.Date(), length(no.end.date))
+		
+		# order by mandate dates and types
+		mnd.types <- match(tmp[,COL_ATT_MDT_NOM], mdt.order)
+		idx <- order(data[rows,COL_ATT_MDT_DBT], mnd.types)
+		mnd.types <- mnd.types[idx]
+		tmp <- tmp[idx,]
+		
+		# adjust dates to avoid overlapping
+		if(nrow(tmp)>1)
+		{	i <- 1
+			while(i<nrow(tmp))
+			{	#tlog(8, "row ",i,"----------------------------")
+				#print(tmp)
+				
+				if(mnd.types[i]>mnd.types[i+1])
+				{	tmp[i,COL_ATT_MDT_FIN] <- min(tmp[i,COL_ATT_MDT_FIN], tmp[i+1,COL_ATT_MDT_DBT]-1)
+					if(tmp[i,COL_ATT_MDT_DBT]>tmp[i,COL_ATT_MDT_FIN])
+					{	tmp <- tmp[-i,,drop=FALSE]
+						mnd.types <- mnd.types[-i]
+						i <- max(1, i - 1)
+					}
+					else
+						i <- i + 1
+				}
+				else
+				{	tmp[i+1,COL_ATT_MDT_DBT] <- max(tmp[i+1,COL_ATT_MDT_DBT], tmp[i,COL_ATT_MDT_FIN]+1)
+					if(tmp[i+1,COL_ATT_MDT_DBT]>tmp[i+1,COL_ATT_MDT_FIN])
+					{	tmp <- tmp[-(i+1),,drop=FALSE]
+						mnd.types <- mnd.types[-(i+1)]
+						i <- max(1, i - 1)
+					}
+					else
+						i <- i + 1
+				}
+			}
+		}
+		
+		# build string representing sequence
+		dates <- seq(start.date, end.date, granularity)
+		matches <- sapply(1:(length(dates)-1), function(d)
+		{	# compute intersection durations
+			inters <- sapply(1:nrow(tmp), function(r)
+			{	date.intersect.val(start1=dates[d], end1=dates[d+1], 
+						start2=tmp[r,COL_ATT_MDT_DBT], end2=tmp[r,COL_ATT_MDT_FIN])
+			})
+			# take the longest
+			idx <- which(!is.na(inters))
+			if(length(idx)>0)
+			{	idx <- idx[which.max(inters[idx])]
+				str <- tmp[idx,COL_ATT_MDT_NOM]
+			}
+			else
+				str <- NA
+		})
+		
+		res <- paste(matches, collapse="-")
+		return(res)
+	})
+	tlog.end.loop(4, "Processing of ids complete")
 	
 	return(sd)
 }
