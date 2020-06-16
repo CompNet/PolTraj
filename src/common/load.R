@@ -112,8 +112,8 @@ convert.to.sequences <- function(tab.persinf, tab.mandates)
 		tlog.loop(6, j, "Processing id ",id, "(",j,"/",length(unique.ids),")")
 		
 		# retrieve the date for the current id
-		rows <- which(data[,COL_ATT_ELU_ID]==id)
-		tmp <- data[rows,c(COL_ATT_MDT_NOM,COL_ATT_MDT_DBT,COL_ATT_MDT_FIN)]
+		rows <- which(tab.mandates[,COL_ATT_ELU_ID]==id)
+		tmp <- tab.mandates[rows,c(COL_ATT_MDT_NOM,COL_ATT_MDT_DBT,COL_ATT_MDT_FIN)]
 		#print(tmp)
 		
 		# convert mandate names to short form
@@ -125,7 +125,7 @@ convert.to.sequences <- function(tab.persinf, tab.mandates)
 		
 		# order by mandate dates and types
 		mnd.types <- match(tmp[,COL_ATT_MDT_NOM], mdt.order)
-		idx <- order(data[rows,COL_ATT_MDT_DBT], mnd.types)
+		idx <- order(tmp[,COL_ATT_MDT_DBT], mnd.types)
 		mnd.types <- mnd.types[idx]
 		tmp <- tmp[idx,]
 		
