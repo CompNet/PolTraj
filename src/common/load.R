@@ -17,7 +17,7 @@
 # returns: the read data table.
 #############################################################################################
 read.cached.table <- function(cache.file)
-{	tlog(2, "Reading cached file \"",cache.file,"\"")
+{	tlog(2, "Reading BREF file \"",cache.file,"\"")
 	
 	# first read only the column names
 	tmp <- read.table(
@@ -61,7 +61,7 @@ read.cached.table <- function(cache.file)
 
 
 #############################################################################################
-# Reads the full BRÉF table and splits it into a personal info and a mandate tables.
+# Reads the full BREF table and splits it into a personal info and a mandate tables.
 #
 # input.file: name of the file containing the table.
 #
@@ -89,7 +89,7 @@ read.bref.table <- function(input.file)
 
 
 #############################################################################################
-# Converts the BRÉF table into a Traminer-compatible data structure.
+# Converts the BREF table into a Traminer-compatible data structure.
 # 
 # tab.mandates: mandate tables.
 #
@@ -102,7 +102,7 @@ convert.to.sequences <- function(tab.persinf, tab.mandates)
 	if(file.exists(FILE_CACHE))
 	{	seqs <- read.table(
 			file=FILE_CACHE,
-			header=FALSE,
+			header=TRUE,
 			sep="\t",
 			check.names=FALSE,
 			comment.char="",
@@ -118,12 +118,14 @@ convert.to.sequences <- function(tab.persinf, tab.mandates)
 		granularity <- "year"
 		start.date <- as.Date("2001/1/1")
 		end.date <- Sys.Date()
+		dates <- seq(start.date, end.date, granularity)
+		empty.seq <- paste(rep(NA,length(dates)-1), collapse="-")
 		
 		# at first, let's just use the mandate names
 		mdt.order <- c(MDT_SHORT_PR,MDT_SHORT_S,MDT_SHORT_D,MDT_SHORT_DE,MDT_SHORT_CR,MDT_SHORT_CD,MDT_SHORT_CM,MDT_SHORT_EPCI)
 		unique.ids <- tab.persinf[,COL_ATT_ELU_ID]
 		tlog.start.loop(4, length(unique.ids), "Processing each id separately")
-		seqs <- sapply(1:length(unique.ids), function(j)
+		seqs <- t(future_sapply(1:length(unique.ids), function(j)
 		{	id <- unique.ids[j]
 			tlog.loop(6, j, "Processing id ",id, "(",j,"/",length(unique.ids),")")
 			
@@ -176,7 +178,6 @@ convert.to.sequences <- function(tab.persinf, tab.mandates)
 			}
 			
 			# build string representing sequence
-			dates <- seq(start.date, end.date, granularity)
 			matches <- sapply(1:(length(dates)-1), function(d)
 			{	# compute intersection durations
 				inters <- sapply(1:nrow(tmp), function(r)
@@ -194,22 +195,54 @@ convert.to.sequences <- function(tab.persinf, tab.mandates)
 			})
 			
 			res <- paste(matches, collapse="-")
-			return(res)
-		})
+			return(cbind(id, res))
+		}))
 		tlog.end.loop(4, "Processing of ids complete")
+		colnames(seqs) <- c(COL_ATT_ELU_ID, COL_CACHE_SEQ)
+		
+		# remove empty trajectories (all mandates out of the period)
+		idx <- which(seqs[,COL_CACHE_SEQ]==empty.seq)
+		seqs <- seqs[-idx,]
 		
 		# cache the obtained data
+		seqs <- data.frame(
+			seqs, 
+			stringsAsFactors=FALSE,
+			check.names=FALSE
+		)
 		write.table(
 			x=seqs,
 			file=FILE_CACHE,
 			quote=FALSE,
 			sep="\t",
 			row.names=FALSE,
-			col.names=FALSE
+			col.names=TRUE
 		)
 	}
 	
 	# create the traminer object
+	sd <- seqdef(
+		data=seqs,							# data to process
+		left=NA,							# how to handle missing data at the beginning of the sequence (NA vs. "DEL") 
+		gap=NA,								# how to handle missing data inside the sequence (same as above)
+		right=NA,							# how to handle missing data at the end of the sequence (same as left) 
+		var=COL_CACHE_SEQ,					# name of the columns containing the formatted sequences
+		id=seqs[,COL_ATT_ELU_ID],			# ids of the characters
+		alphabet=MDT_SHORT,					# list of position codes
+		labels=names(MDT_SHORT),			# names of these positions
+		cpal=COLORS_8,						# colors of these positions
+		missing.color="#AAAAAA"				# color of missing values
+	)
+	
+	sd <- seqdef(
+		data=seqs,
+		left=NA, 
+		gap=NA,
+		right=NA, 
+		var=2,
+		id=seqs[,1],
+		alphabet=c("CD","CM","CR","D","DE","EPCI","PR","S")
+	)
 	
 	return(sd)
 }

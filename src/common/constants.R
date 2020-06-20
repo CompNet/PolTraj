@@ -234,7 +234,8 @@ COL_TYPES[COL_ATT_REG_CODE] <- "cat"
 COL_TYPES[COL_ATT_REG_NOM] <- "nom"
 COL_TYPES[COL_ATT_SOURCES] <- "cat"
 
-
+# cache colnames 
+COL_CACHE_SEQ <- "Sequence"
 
 
 #############################################################################################
@@ -258,3 +259,4 @@ MDT_SHORT["REPRESENTANT AU PARLEMENT EUROPEEN"] <- MDT_SHORT_DE
 MDT_SHORT["CONSEILLER EPCI"] <- MDT_SHORT_EPCI
 MDT_SHORT["PRESIDENT DE LA REPUBLIQUE"] <- MDT_SHORT_PR
 MDT_SHORT["SENATEUR"] <- MDT_SHORT_S
+
