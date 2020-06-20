@@ -234,15 +234,28 @@ convert.to.sequences <- function(tab.persinf, tab.mandates)
 		missing.color="#AAAAAA"				# color of missing values
 	)
 	
-	sd <- seqdef(
-		data=seqs,
-		left=NA, 
-		gap=NA,
-		right=NA, 
-		var=2,
-		id=seqs[,1],
-		alphabet=c("CD","CM","CR","D","DE","EPCI","PR","S")
-	)
+# Rstudio version
+#
+#	seqs <- read.table(
+#		file="bref/cache.txt",
+#		header=TRUE,
+#		sep="\t",
+#		check.names=FALSE,
+#		comment.char="",
+#		row.names=NULL,
+#		quote="",
+#		as.is=TRUE
+#	)
+#
+#	sd <- seqdef(
+#		data=seqs,
+#		left=NA, 
+#		gap=NA,
+#		right=NA, 
+#		var=2,
+#		id=seqs[,1],
+#		alphabet=c("CD","CM","CR","D","DE","EPCI","PR","S")
+#	)
 	
 	return(sd)
 }
