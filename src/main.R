@@ -11,23 +11,26 @@
 source("src/common/include.R")
 
 
+###############################################################################
 # start logging
 start.rec.log(text=paste0("CACHE"))
 tlog(0,"Start converting and caching the BRÉF data")
 
+###############################################################################
 # read BRÉF table
 tmp <- read.bref.table(input.file=FILE_DATA)
 tab.persinf <- tmp$tab.persinf
 tab.mandates <- tmp$tab.mandates
 
+###############################################################################
 # convert to traminer object
 sd <- convert.to.sequences(tab.persinf, tab.mandates)
 
+###############################################################################
 # perform sequence analysis
+# TODO
 
-
-
-
-
+###############################################################################
+# finish logging
 tlog(0,"Done")
 end.rec.log()
