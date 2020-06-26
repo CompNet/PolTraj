@@ -34,3 +34,14 @@ sd <- convert.to.sequences(tab.persinf, tab.mandates)
 # finish logging
 tlog(0,"Done")
 end.rec.log()
+
+
+
+
+# analyse de séquences
+# - gestion temps/evts
+#   - évt sans accumulation (pas de distinction entre mandats consécutifs)
+#   - evt avec accu (on distingue mandats consécutifs)
+#   - on considère la durée du mandat
+# - mettre le focus sur un poste donné plutot que sur un individu donné
+#   (séquence des personnes ou classes de personnes ayant occupé un poste donné)
