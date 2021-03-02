@@ -91,6 +91,7 @@ read.bref.table <- function(input.file)
 #############################################################################################
 # Converts the BREF table into a Traminer-compatible data structure.
 # 
+# tab.persinf: personal information table.
 # tab.mandates: mandate tables.
 #
 # returns: a Traminer object.
