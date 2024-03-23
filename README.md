@@ -3,7 +3,7 @@ PolTraj
 ===================
 *Analysis of the professional trajectories of French politicians*
 
-* Copyright 2019-2020 Vincent Labatut
+* Copyright 2019-2023 Noémie Fevrat & Vincent Labatut
 
 PolTraj is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation. For source availability and license information see `licence.txt`
 
@@ -11,7 +11,6 @@ PolTraj is free software: you can redistribute it and/or modify it under the ter
 * GitHub repo: https://github.com/CompNet/PolTraj
 * Contact: vincent.labatut@univ-avignon.fr
 
-**This software is currently in development, I do not recommend using it as of yet**
 -----------------------------------------------------------------------
 
 ## Description
