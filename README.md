@@ -60,4 +60,4 @@ In order to load the tables and generate the description files:
 
 
 ## References
- * **[LFM'20]** V. Labatut, N. Févrat & G. Marrel, *BRÉF – Base de données Révisée des Élu·es de France*, Technical Report, Avignon Université, 2020. [⟨hal-XXXXXXXX⟩](https://hal.archives-ouvertes.fr/hal-XXXXXXXX)
+ * **[LFM'20]** V. Labatut, N. Févrat & G. Marrel, *BRÉF – Base de données Révisée des Élu·es de France*, Technical Report, Avignon Université, 2020. [⟨hal-02886580⟩](https://hal.archives-ouvertes.fr/hal-02886580)
